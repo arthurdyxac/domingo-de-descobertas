@@ -1,25 +1,82 @@
-const samples={guia:{src:'assets/guia-4.webp',alt:'Lição A Criação, página real do Guia do Professor',note:'História, perguntas, dinâmica e oração em uma sequência para conduzir a aula.'},colorir:{src:'assets/colorir-3.webp',alt:'Atividades reais para colorir: A Criação e Adão e Eva',note:'52 atividades para colorir, incluídas nas duas edições. Imprima as folhas que pretende usar.'},atividades:{src:'assets/atividades-3.webp',alt:'Atividades complementares reais das lições A Criação e Adão e Eva',note:'104 atividades complementares na Completa: propostas para observar, relacionar e conversar.'},cartoes:{src:'assets/cartoes-3.webp',alt:'Página real de cartões de versículos',note:'Bônus da Completa: 52 cartões de versículos organizados por lição, distribuídos em 10 páginas.'}};
-const sampleImage=document.querySelector('#sample-image');
-document.querySelectorAll('[data-sample]').forEach((tab,index,tabs)=>{tab.addEventListener('click',()=>{tabs.forEach(t=>t.setAttribute('aria-selected','false'));tab.setAttribute('aria-selected','true');const s=samples[tab.dataset.sample];sampleImage.src=s.src;sampleImage.alt=s.alt;document.querySelector('#sample-note').textContent=s.note;document.querySelector('#sample-open').setAttribute('aria-label','Ampliar '+s.alt)});tab.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();const next=tabs[(index+(e.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length];next.focus();next.click()}})});
-const imageDialog=document.querySelector('#image-dialog'),purchaseDialog=document.querySelector('#purchase-dialog');
-document.querySelector('#sample-open').addEventListener('click',()=>{document.querySelector('#dialog-image').src=sampleImage.src;document.querySelector('#dialog-image').alt=sampleImage.alt;imageDialog.showModal()});
-document.querySelectorAll('.close-dialog').forEach(b=>b.addEventListener('click',()=>b.closest('dialog').close()));
-document.querySelector('.close-purchase').addEventListener('click',()=>purchaseDialog.close());
-document.querySelectorAll('dialog').forEach(d=>d.addEventListener('click',e=>{if(e.target===d){const r=d.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)d.close()}}));
-document.querySelectorAll('[data-preview-buy]').forEach(b=>b.addEventListener('click',()=>{document.querySelector('#purchase-title').textContent='Edição '+b.dataset.previewBuy+' · '+(b.dataset.previewBuy==='Completa'?'R$29,90':'R$10');purchaseDialog.showModal()}));
-document.querySelectorAll('.choice').forEach(b=>b.addEventListener('click',()=>{const summary=document.querySelector('.selected-summary');summary.hidden=false;summary.textContent='Você se interessou pela edição '+b.dataset.edition+'. Confira as respostas antes de continuar.'}));
-if('IntersectionObserver' in window&&!matchMedia('(prefers-reduced-motion: reduce)').matches){document.documentElement.classList.add('motion-ready');const observer=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');observer.unobserve(e.target)}}),{threshold:.08,rootMargin:'0px 0px -25px 0px'});document.querySelectorAll('.reveal').forEach((el)=>observer.observe(el));}
-document.querySelectorAll('.next').forEach(a=>a.addEventListener('click',e=>{const target=document.querySelector(a.getAttribute('href'));if(target){e.preventDefault();target.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});history.replaceState(null,'',a.getAttribute('href'))}}));
+const CHECKOUTS = { Essencial: 'https://pay.kiwify.com.br/NvOpzKx', Completa: 'https://pay.kiwify.com.br/UT0Vm9e' };
+const samples = {
+  guia: { src: 'assets/guia-4.webp', alt: 'Lição A Criação, página real do Guia do Professor', note: 'História, perguntas, dinâmica e oração em uma sequência para conduzir a aula.' },
+  colorir: { src: 'assets/colorir-3.webp', alt: 'Atividades reais para colorir: A Criação e Adão e Eva', note: '52 atividades para colorir, incluídas nas duas edições. Imprima as folhas que pretende usar.' },
+  atividades: { src: 'assets/atividades-3.webp', alt: 'Atividades complementares reais das lições A Criação e Adão e Eva', note: '104 atividades complementares na Completa: propostas para observar, relacionar e conversar.' },
+  cartoes: { src: 'assets/cartoes-3.webp', alt: 'Página real de cartões de versículos', note: 'Bônus da Completa: 52 cartões de versículos organizados por lição, distribuídos em 10 páginas.' }
+};
 
-const promiseRail=document.querySelector('.promise-strip');
-if(promiseRail){promiseRail.outerHTML='<div class="discovery-marquee" aria-label="Destaques do kit"><div class="marquee-track"><span>✦ 52 LIÇÕES ORGANIZADAS</span><span>✦ ATIVIDADES PARA IMPRIMIR</span><span>✦ CRIANÇAS DE 4 A 8 ANOS</span><span>✦ GUIA PARA O PROFESSOR</span><span aria-hidden="true">✦ 52 LIÇÕES ORGANIZADAS</span><span aria-hidden="true">✦ ATIVIDADES PARA IMPRIMIR</span><span aria-hidden="true">✦ CRIANÇAS DE 4 A 8 ANOS</span><span aria-hidden="true">✦ GUIA PARA O PROFESSOR</span></div></div>'}
-const helenaText=document.querySelector('.helena-signature span');if(helenaText)helenaText.textContent='Um olhar acolhedor para cada descoberta.';
-const helenaImage=document.querySelector('.helena-photo img');if(helenaImage)helenaImage.alt='Tia Helena em uma sala infantil';
-const helenaCaption=document.querySelector('.helena-photo figcaption');if(helenaCaption)helenaCaption.textContent='Conheça a Tia Helena';
-const draftNote=document.querySelector('.draft-note');if(draftNote)draftNote.remove();
-const profiles=[['assets/testimonial-ana.jpeg','Ana Martins'],['assets/testimonial-camila.jpeg','Camila Rocha'],['assets/testimonial-luciana.jpeg','Luciana Pereira']];
-document.querySelectorAll('.quote-person').forEach((person,i)=>{const [src,name]=profiles[i];person.innerHTML='<img src="'+src+'" alt="'+name+'"><div><b>'+name+'</b></div>'});
-const footer=document.querySelector('.footer-inner');if(footer&&!footer.querySelector('.footer-socials')){const socials=document.createElement('div');socials.className='footer-socials';socials.setAttribute('aria-label','Redes sociais');socials.innerHTML='<a href="https://www.instagram.com/domingodedescobertas/" target="_blank" rel="noreferrer" aria-label="Instagram">◎</a><a href="https://www.facebook.com/domingodedescobertas" target="_blank" rel="noreferrer" aria-label="Facebook">f</a><a href="https://www.youtube.com/@domingodedescobertas" target="_blank" rel="noreferrer" aria-label="YouTube">▶</a><a href="https://www.tiktok.com/@domingodedescobertas" target="_blank" rel="noreferrer" aria-label="TikTok">♪</a><a href="https://kiwify.com.br/@domingodedescobertas" target="_blank" rel="noreferrer" aria-label="Kiwify">K</a>';footer.querySelector('p').before(socials);footer.querySelector('small').textContent='@domingodedescobertas · © 2026 · Material digital em PDF.'}
-const polish=document.createElement('style');polish.textContent=`
-.discovery-marquee{margin-top:70px;overflow:hidden;border-block:1px solid #cbdccf;background:#f1f6ef;color:#37654C;white-space:nowrap}.marquee-track{display:flex;width:max-content;animation:marquee 24s linear infinite}.marquee-track span{display:inline-flex;align-items:center;min-height:58px;padding:0 28px;font-size:12px;letter-spacing:.09em;font-weight:800}.marquee-track span:nth-child(4n+2){color:#365F7D}.marquee-track span:nth-child(4n+3){color:#a2644f}@keyframes marquee{to{transform:translateX(-50%)}}.product-display{max-width:760px}.product-display>img{display:block;width:100%;height:auto;aspect-ratio:3/2;object-fit:contain;background:#e7f0f6}.quote-person>img{border-radius:50%;width:46px;height:46px;object-fit:cover;display:block;box-shadow:0 0 0 3px #eaf0e6}.footer-socials{display:flex;gap:10px;align-items:center}.footer-socials a{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;text-decoration:none;background:#E5F1F8;color:#365F7D;font:800 17px Nunito;transition:transform .2s,background .2s}.footer-socials a:hover{background:#37654C;color:#fff;transform:translateY(-2px)}@media(max-width:760px){.discovery-marquee{margin-top:38px}.marquee-track{animation-duration:18s}.marquee-track span{min-height:50px;padding:0 18px;font-size:10px}.product-display>img{aspect-ratio:3/2;object-fit:contain}.footer-inner{flex-direction:column;align-items:flex-start;gap:20px}.footer-inner>p{text-align:left}}@media(prefers-reduced-motion:reduce){.marquee-track{animation:none}}
-`;document.head.append(polish);
+const sampleImage = document.querySelector('#sample-image');
+const sampleNote = document.querySelector('#sample-note');
+const sampleTabs = [...document.querySelectorAll('[data-sample]')];
+let sampleIndex = 0;
+function showSample(index, focus = false) {
+  sampleIndex = (index + sampleTabs.length) % sampleTabs.length;
+  const tab = sampleTabs[sampleIndex], sample = samples[tab.dataset.sample];
+  sampleTabs.forEach(item => item.setAttribute('aria-selected', 'false'));
+  tab.setAttribute('aria-selected', 'true');
+  sampleImage.classList.remove('sample-image-swap'); void sampleImage.offsetWidth; sampleImage.classList.add('sample-image-swap');
+  sampleImage.src = sample.src; sampleImage.alt = sample.alt; sampleNote.textContent = sample.note;
+  document.querySelector('#sample-open').setAttribute('aria-label', `Ampliar ${sample.alt}`);
+  if (focus) tab.focus({ preventScroll: true });
+}
+sampleTabs.forEach((tab, index) => {
+  tab.addEventListener('click', () => showSample(index, true));
+  tab.addEventListener('keydown', event => {
+    if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') { event.preventDefault(); showSample(index + (event.key === 'ArrowRight' ? 1 : -1), true); }
+  });
+});
+if (!matchMedia('(prefers-reduced-motion: reduce)').matches) setInterval(() => showSample(sampleIndex + 1), 2400);
+
+const imageDialog = document.querySelector('#image-dialog');
+document.querySelector('#sample-open').addEventListener('click', () => {
+  document.querySelector('#dialog-image').src = sampleImage.src;
+  document.querySelector('#dialog-image').alt = sampleImage.alt;
+  imageDialog.showModal();
+});
+document.querySelectorAll('.close-dialog').forEach(button => button.addEventListener('click', () => button.closest('dialog').close()));
+document.querySelectorAll('dialog').forEach(dialog => dialog.addEventListener('click', event => { if (event.target === dialog) dialog.close(); }));
+document.querySelectorAll('.next').forEach(link => link.addEventListener('click', event => {
+  const target = document.querySelector(link.getAttribute('href')); if (!target) return;
+  event.preventDefault(); target.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }); history.replaceState(null, '', link.getAttribute('href'));
+}));
+if ('IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  document.documentElement.classList.add('motion-ready');
+  const observer = new IntersectionObserver(entries => entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add('visible'); observer.unobserve(entry.target); } }), { threshold: .08, rootMargin: '0px 0px -25px 0px' });
+  document.querySelectorAll('.reveal').forEach(element => observer.observe(element));
+}
+
+document.querySelectorAll('.brand img, .hero-art > img').forEach(image => image.src = 'assets/identidade.webp');
+document.querySelector('.hero-art > img').alt = 'Duas crianças descobrindo histórias em uma Bíblia azul';
+document.querySelector('.hero-copy .lead').innerHTML = 'Chega de preparar a aula correndo e ainda sentir que faltou algo.<br>Abra a lição, escolha as atividades e conduza o encontro com segurança.';
+document.querySelector('.hero-copy > p:not(.lead):not(.micro)').innerHTML = 'Você recebe <strong>52 lições bíblicas organizadas</strong>, com guia do professor e atividades para imprimir — feitas para crianças de <strong>4 a 8 anos</strong>.';
+document.querySelector('.samples .section-heading p').textContent = 'Quando tudo fica espalhado, preparar o encontro vira uma corrida. Aqui você abre um roteiro pronto, escolhe o que usar e ganha tempo para o que realmente importa: ensinar e acolher.';
+document.querySelector('.sample-intro h3').innerHTML = 'Veja o material<br>por dentro.';
+document.querySelector('.sample-tabs').insertAdjacentHTML('beforebegin', '<p class="tap-hint" aria-live="polite">Toque nas abas: as páginas mudam sozinhas para você conhecer cada material.</p>');
+document.querySelector('.helena-signature span').textContent = 'Um olhar acolhedor para cada descoberta.';
+document.querySelector('.helena-photo img').alt = 'Tia Helena em uma sala infantil';
+document.querySelector('.helena-photo figcaption').textContent = 'Conheça a Tia Helena';
+document.querySelector('.draft-note')?.remove();
+
+const profiles = [['assets/testimonial-ana.jpeg', 'Ana Martins'], ['assets/testimonial-camila.jpeg', 'Camila Rocha'], ['assets/testimonial-luciana.jpeg', 'Luciana Pereira']];
+document.querySelectorAll('.quote-person').forEach((person, index) => { const [src, name] = profiles[index]; person.innerHTML = `<img src="${src}" alt="${name}"><div><b>${name}</b></div>`; });
+document.querySelector('.offers .section-heading p').textContent = 'Escolha o apoio que evita improvisos: o Essencial resolve a sua próxima aula; a Completa amplia cada encontro com mais atividades e cartões de versículos.';
+document.querySelector('.product-display figcaption').textContent = 'Material digital em PDF. Você recebe o acesso após a confirmação do pagamento.';
+document.querySelectorAll('.choice').forEach(button => { const edition = button.dataset.edition; button.href = CHECKOUTS[edition]; button.classList.remove('next'); });
+document.querySelector('.final-buttons').innerHTML = `<a class="button outline" href="${CHECKOUTS.Essencial}">Quero o Essencial · R$10</a><a class="button" href="${CHECKOUTS.Completa}">Quero a Completa · R$29,90</a>`;
+document.querySelector('.final-inner .micro').textContent = 'Acesse agora o material digital que combina com a sua turma.';
+document.querySelector('.offer-grid').insertAdjacentHTML('beforebegin', '<div class="offer-note" role="status"><span>OFERTA ATUAL</span><b>Escolha sua edição e receba o acesso digital logo após a confirmação.</b></div>');
+
+const promiseRail = document.querySelector('.promise-strip');
+if (promiseRail) promiseRail.outerHTML = '<div class="discovery-marquee" aria-label="Destaques do kit"><div class="marquee-track"><span>✦ 52 LIÇÕES ORGANIZADAS</span><span>✦ ATIVIDADES PARA IMPRIMIR</span><span>✦ CRIANÇAS DE 4 A 8 ANOS</span><span>✦ GUIA PARA O PROFESSOR</span><span aria-hidden="true">✦ 52 LIÇÕES ORGANIZADAS</span><span aria-hidden="true">✦ ATIVIDADES PARA IMPRIMIR</span><span aria-hidden="true">✦ CRIANÇAS DE 4 A 8 ANOS</span><span aria-hidden="true">✦ GUIA PARA O PROFESSOR</span></div></div>';
+
+const icons = {
+  Instagram: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle class="dot" cx="17.4" cy="6.7" r="1"></circle></svg>',
+  Facebook: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.1 21v-8h2.8l.4-3h-3.2V8.1c0-.9.3-1.5 1.6-1.5h1.7V3.9c-.3 0-1.3-.1-2.4-.1-2.4 0-4 1.5-4 4.2v2H8.3v3H11v8z"></path></svg>',
+  YouTube: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.4 7.2a2.7 2.7 0 0 0-1.9-1.9C17.8 5 12 5 12 5s-5.8 0-7.5.3a2.7 2.7 0 0 0-1.9 1.9C2.3 8.9 2.3 12 2.3 12s0 3.1.3 4.8a2.7 2.7 0 0 0 1.9 1.9C6.2 19 12 19 12 19s5.8 0 7.5-.3a2.7 2.7 0 0 0 1.9-1.9c.3-1.7.3-4.8.3-4.8s0-3.1-.3-4.8Z"></path><path class="cut" d="m10 15.4 5-3.4-5-3.4z"></path></svg>',
+  TikTok: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.4 3c.4 2.5 1.8 4 4.3 4.2v3.1c-1.6 0-3-.5-4.3-1.4v6.3a5.7 5.7 0 1 1-5-5.7v3.2a2.6 2.6 0 1 0 1.8 2.5V3z"></path></svg>',
+  Kwai: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="8" r="3.1"></circle><circle cx="16" cy="8" r="3.1"></circle><path d="M5 12.5v3.2A4.3 4.3 0 0 0 9.3 20h5.4a4.3 4.3 0 0 0 4.3-4.3v-3.2"></path><path d="M10.4 14.5h3.2"></path></svg>'
+};
+const socialLinks = [['Instagram', 'https://www.instagram.com/domingodedescobertas/'], ['Facebook', 'https://www.facebook.com/domingodedescobertas'], ['YouTube', 'https://www.youtube.com/@domingodedescobertas'], ['TikTok', 'https://www.tiktok.com/@domingodedescobertas'], ['Kwai', 'https://www.kwai.com/@domingodedescobertas']];
+const footer = document.querySelector('.footer-inner'); footer.querySelector('.footer-socials')?.remove();
+const socials = document.createElement('nav'); socials.className = 'footer-socials'; socials.setAttribute('aria-label', 'Redes sociais'); socials.innerHTML = socialLinks.map(([name, href]) => `<a href="${href}" target="_blank" rel="noreferrer" aria-label="${name}">${icons[name]}</a>`).join(''); footer.querySelector('p').before(socials); footer.querySelector('small').textContent = '@domingodedescobertas · © 2026 · Todos os direitos reservados.';
