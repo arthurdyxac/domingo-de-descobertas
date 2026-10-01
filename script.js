@@ -10,7 +10,14 @@ const sampleImage = document.querySelector('#sample-image');
 const sampleNote = document.querySelector('#sample-note');
 const sampleTabs = [...document.querySelectorAll('[data-sample]')];
 let sampleIndex = 0;
+let sampleTimer;
+function stopSampleRotation() {
+  clearInterval(sampleTimer);
+  const hint = document.querySelector('.tap-hint');
+  if (hint) hint.textContent = 'Você está no controle. Toque em outra aba para explorar; toque na página para ampliar.';
+}
 function showSample(index, focus = false) {
+  if (focus) stopSampleRotation();
   sampleIndex = (index + sampleTabs.length) % sampleTabs.length;
   const tab = sampleTabs[sampleIndex], sample = samples[tab.dataset.sample];
   sampleTabs.forEach(item => item.setAttribute('aria-selected', 'false'));
@@ -26,10 +33,14 @@ sampleTabs.forEach((tab, index) => {
     if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') { event.preventDefault(); showSample(index + (event.key === 'ArrowRight' ? 1 : -1), true); }
   });
 });
-if (!matchMedia('(prefers-reduced-motion: reduce)').matches) setInterval(() => showSample(sampleIndex + 1), 2400);
+if (!matchMedia('(prefers-reduced-motion: reduce)').matches) sampleTimer = setInterval(() => {
+  const rect = document.querySelector('.sample-content').getBoundingClientRect();
+  if (!document.hidden && rect.top < innerHeight && rect.bottom > 0) showSample(sampleIndex + 1);
+}, 2600);
 
 const imageDialog = document.querySelector('#image-dialog');
 document.querySelector('#sample-open').addEventListener('click', () => {
+  stopSampleRotation();
   document.querySelector('#dialog-image').src = sampleImage.src;
   document.querySelector('#dialog-image').alt = sampleImage.alt;
   imageDialog.showModal();
@@ -37,7 +48,9 @@ document.querySelector('#sample-open').addEventListener('click', () => {
 document.querySelectorAll('.close-dialog').forEach(button => button.addEventListener('click', () => button.closest('dialog').close()));
 document.querySelectorAll('dialog').forEach(dialog => dialog.addEventListener('click', event => { if (event.target === dialog) dialog.close(); }));
 document.querySelectorAll('.next').forEach(link => link.addEventListener('click', event => {
-  const target = document.querySelector(link.getAttribute('href')); if (!target) return;
+  const href = link.getAttribute('href');
+  if (!href || !href.startsWith('#')) return;
+  const target = document.querySelector(href); if (!target) return;
   event.preventDefault(); target.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }); history.replaceState(null, '', link.getAttribute('href'));
 }));
 if ('IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -51,8 +64,8 @@ document.querySelector('.hero-art > img').alt = 'Duas crianças descobrindo hist
 document.querySelector('.hero-copy .lead').innerHTML = 'Chega de preparar a aula correndo e ainda sentir que faltou algo.<br>Abra a lição, escolha as atividades e conduza o encontro com segurança.';
 document.querySelector('.hero-copy > p:not(.lead):not(.micro)').innerHTML = 'Você recebe <strong>52 lições bíblicas organizadas</strong>, com guia do professor e atividades para imprimir — feitas para crianças de <strong>4 a 8 anos</strong>.';
 document.querySelector('.samples .section-heading p').textContent = 'Quando tudo fica espalhado, preparar o encontro vira uma corrida. Aqui você abre um roteiro pronto, escolhe o que usar e ganha tempo para o que realmente importa: ensinar e acolher.';
-document.querySelector('.sample-intro h3').innerHTML = 'Veja o material<br>por dentro.';
-document.querySelector('.sample-tabs').insertAdjacentHTML('beforebegin', '<p class="tap-hint" aria-live="polite">Toque nas abas: as páginas mudam sozinhas para você conhecer cada material.</p>');
+document.querySelector('.sample-intro h3').innerHTML = 'Veja o material <br>por dentro.';
+document.querySelector('.sample-tabs').insertAdjacentHTML('beforebegin', '<p class="tap-hint" aria-live="polite">4 materiais para explorar. Toque em uma aba para escolher e pausar a troca automática.</p>');
 document.querySelector('.helena-signature span').textContent = 'Um olhar acolhedor para cada descoberta.';
 document.querySelector('.helena-photo img').alt = 'Tia Helena em uma sala infantil';
 document.querySelector('.helena-photo figcaption').textContent = 'Conheça a Tia Helena';
@@ -65,7 +78,22 @@ document.querySelector('.product-display figcaption').textContent = 'Material di
 document.querySelectorAll('.choice').forEach(button => { const edition = button.dataset.edition; button.href = CHECKOUTS[edition]; button.classList.remove('next'); });
 document.querySelector('.final-buttons').innerHTML = `<a class="button outline" href="${CHECKOUTS.Essencial}">Quero o Essencial · R$10</a><a class="button" href="${CHECKOUTS.Completa}">Quero a Completa · R$29,90</a>`;
 document.querySelector('.final-inner .micro').textContent = 'Acesse agora o material digital que combina com a sua turma.';
-document.querySelector('.offer-grid').insertAdjacentHTML('beforebegin', '<div class="offer-note" role="status"><span>OFERTA ATUAL</span><b>Escolha sua edição e receba o acesso digital logo após a confirmação.</b></div>');
+document.querySelector('.offer-grid').insertAdjacentHTML('beforebegin', '<aside class="offer-note" aria-label="Promoção por tempo limitado"><span class="promo-tag">PROMOÇÃO RELÂMPAGO</span><h3>Garanta o material da sua turma enquanto a oferta está disponível.</h3><p>Essencial por <strong>R$10</strong> ou Completa por <strong>R$29,90</strong>. Pagamento único e acesso digital após a confirmação.</p><p class="countdown-label">Esta oferta termina em:</p><div class="countdown" role="timer" aria-label="Tempo restante da promoção"></div></aside>');
+const promotionDeadline = Date.parse('2027-01-01T00:00:00-03:00');
+document.querySelector('.preview-bar').innerHTML = '<strong>PROMOÇÃO RELÂMPAGO</strong><span class="banner-detail">52 lições a partir de R$10 · Por tempo limitado</span>';
+function updateCountdown(now = Date.now()) {
+  const total = Math.max(0, Math.floor((promotionDeadline - now) / 1000));
+  const values = [Math.floor(total / 86400), Math.floor(total / 3600) % 24, Math.floor(total / 60) % 60, total % 60];
+  document.querySelector('.countdown').innerHTML = values.map((value, i) => `<div><b>${String(value).padStart(2, '0')}</b><small>${['dias', 'horas', 'min', 'seg'][i]}</small></div>`).join('');
+  if (!total) {
+    document.querySelector('.preview-bar').textContent = 'Promoção encerrada';
+    document.querySelector('.offer-note').innerHTML = '<h3>Esta promoção terminou.</h3><p>Aguarde a próxima oferta.</p>';
+    document.querySelectorAll('a[href^="https://pay.kiwify.com.br/"]').forEach(link => { link.removeAttribute('href'); link.setAttribute('aria-disabled', 'true'); link.textContent = 'Promoção encerrada'; });
+    clearInterval(promotionTimer);
+  }
+}
+const promotionTimer = setInterval(updateCountdown, 1000);
+updateCountdown();
 
 const promiseRail = document.querySelector('.promise-strip');
 if (promiseRail) promiseRail.outerHTML = '<div class="discovery-marquee" aria-label="Destaques do kit"><div class="marquee-track"><span>✦ 52 LIÇÕES ORGANIZADAS</span><span>✦ ATIVIDADES PARA IMPRIMIR</span><span>✦ CRIANÇAS DE 4 A 8 ANOS</span><span>✦ GUIA PARA O PROFESSOR</span><span aria-hidden="true">✦ 52 LIÇÕES ORGANIZADAS</span><span aria-hidden="true">✦ ATIVIDADES PARA IMPRIMIR</span><span aria-hidden="true">✦ CRIANÇAS DE 4 A 8 ANOS</span><span aria-hidden="true">✦ GUIA PARA O PROFESSOR</span></div></div>';
