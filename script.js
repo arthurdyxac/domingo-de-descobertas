@@ -71,20 +71,30 @@ document.querySelector('.helena-photo img').alt = 'Tia Helena em uma sala infant
 document.querySelector('.helena-photo figcaption').textContent = 'Conheça a Tia Helena';
 document.querySelector('.draft-note')?.remove();
 
-const profiles = [['assets/testimonial-ana.jpeg', 'Ana Martins'], ['assets/testimonial-camila.jpeg', 'Camila Rocha'], ['assets/testimonial-luciana.jpeg', 'Luciana Pereira']];
-document.querySelectorAll('.quote-person').forEach((person, index) => { const [src, name] = profiles[index]; person.innerHTML = `<img src="${src}" alt="${name}"><div><b>${name}</b></div>`; });
+const reviews = [
+  ['marilia', 'Marília Gonçalves', 5, 'Me ajudou muito a organizar a aula sem ficar procurando atividade em vários lugares.'],
+  ['renata', 'Renata Souza', 4, 'Gostei principalmente porque as lições e atividades realmente combinam entre si.'],
+  ['patricia', 'Patrícia Lima', 5, 'Material bonito, simples de usar e bem organizado. Facilitou bastante minha preparação.'],
+  ['juliana', 'Juliana Martins', 5, 'As crianças gostaram das atividades e eu consegui conduzir a aula com mais tranquilidade.'],
+  ['camila-nova', 'Camila Rocha', 4, 'A edição completa tem bastante opção. Já estou separando o que vou usar nas próximas semanas.']
+];
+document.querySelector('.quote-grid').innerHTML = reviews.map(([photo, name, stars, quote]) => `<article class="quote-card"><div class="stars" aria-label="${stars} de 5 estrelas">${'★'.repeat(stars)}<span class="empty-stars" aria-hidden="true">${'☆'.repeat(5-stars)}</span></div><p>“${quote}”</p><div class="quote-person"><img src="assets/testimonial-${photo}.jpeg" alt="${name}" width="46" height="46" loading="lazy"><div><b>${name}</b></div></div></article>`).join('');
 document.querySelector('.offers .section-heading p').textContent = 'Escolha o apoio que evita improvisos: o Essencial resolve a sua próxima aula; a Completa amplia cada encontro com mais atividades e cartões de versículos.';
 document.querySelector('.product-display figcaption').textContent = 'Material digital em PDF. Você recebe o acesso após a confirmação do pagamento.';
 document.querySelectorAll('.choice').forEach(button => { const edition = button.dataset.edition; button.href = CHECKOUTS[edition]; button.classList.remove('next'); });
-document.querySelector('.final-buttons').innerHTML = `<a class="button outline" href="${CHECKOUTS.Essencial}">Quero o Essencial · R$10</a><a class="button" href="${CHECKOUTS.Completa}">Quero a Completa · R$29,90</a>`;
+document.querySelector('.final-buttons').innerHTML = `<a class="button outline" href="${CHECKOUTS.Essencial}">Quero o Essencial · R$12,90</a><a class="button" href="${CHECKOUTS.Completa}">Quero a Completa · R$29,90</a>`;
 document.querySelector('.final-inner .micro').textContent = 'Acesse agora o material digital que combina com a sua turma.';
-document.querySelector('.offer-grid').insertAdjacentHTML('beforebegin', '<aside class="offer-note" aria-label="Promoção por tempo limitado"><span class="promo-tag">PROMOÇÃO RELÂMPAGO</span><h3>Garanta o material da sua turma enquanto a oferta está disponível.</h3><p>Essencial por <strong>R$10</strong> ou Completa por <strong>R$29,90</strong>. Pagamento único e acesso digital após a confirmação.</p><p class="countdown-label">Esta oferta termina em:</p><div class="countdown" role="timer" aria-label="Tempo restante da promoção"></div></aside>');
-const promotionDeadline = Date.parse('2027-01-01T00:00:00-03:00');
-document.querySelector('.preview-bar').innerHTML = '<strong>PROMOÇÃO RELÂMPAGO</strong><span class="banner-detail">52 lições a partir de R$10 · Por tempo limitado</span>';
+document.querySelector('.offer-grid').insertAdjacentHTML('beforebegin', '<aside class="offer-note" aria-label="Promoção por tempo limitado"><span class="promo-tag">OFERTA DE LANÇAMENTO</span><h3>Sua próxima aula organizada, com preço de lançamento.</h3><p>Essencial por <strong>R$12,90</strong> ou Completa por <strong>R$29,90</strong>. Pagamento único e acesso digital após a confirmação.</p><p class="countdown-label">Esta oferta termina em:</p><div class="countdown" role="timer" aria-label="Tempo restante da promoção"></div></aside>');
+// Prazo global do rascunho: 02/10 às 04:40:45 até 05/10 às 04:40:45 (Brasília).
+// Antes de publicar, fixar a janela definitiva de 72h aprovada pelo responsável.
+const promotionDeadline = Date.parse('2026-10-05T04:40:45-03:00');
+document.querySelector('.preview-bar').innerHTML = '<strong>OFERTA DE LANÇAMENTO</strong><span class="banner-detail">52 lições a partir de R$12,90 · Por tempo limitado</span>';
 function updateCountdown(now = Date.now()) {
   const total = Math.max(0, Math.floor((promotionDeadline - now) / 1000));
-  const values = [Math.floor(total / 86400), Math.floor(total / 3600) % 24, Math.floor(total / 60) % 60, total % 60];
-  document.querySelector('.countdown').innerHTML = values.map((value, i) => `<div><b>${String(value).padStart(2, '0')}</b><small>${['dias', 'horas', 'min', 'seg'][i]}</small></div>`).join('');
+  const values = [Math.floor(total / 3600), Math.floor(total / 60) % 60, total % 60];
+  const bannerDetail = document.querySelector('.banner-detail');
+  if (bannerDetail) bannerDetail.textContent = `Termina em ${Math.ceil(total / 3600)}h · A partir de R$12,90`;
+  document.querySelector('.countdown').innerHTML = values.map((value, i) => `<div><b>${String(value).padStart(2, '0')}</b><small>${['horas', 'min', 'seg'][i]}</small></div>`).join('');
   if (!total) {
     document.querySelector('.preview-bar').textContent = 'Promoção encerrada';
     document.querySelector('.offer-note').innerHTML = '<h3>Esta promoção terminou.</h3><p>Aguarde a próxima oferta.</p>';

@@ -36,3 +36,19 @@ button:focus-visible,a:focus-visible{outline:2px solid #365f7d!important;outline
 a[aria-disabled=true]{opacity:.55;pointer-events:none}
 @media(max-width:760px){.preview-bar{gap:3px;flex-direction:column;padding:10px 16px;font-size:13px}.preview-bar .banner-detail{font-size:12px}.sample-note{min-height:112px}.offer-note{padding:26px 20px}.countdown{gap:8px}.countdown>div{width:62px}.countdown b{font-size:27px}.hero-art>img{max-height:none!important}.quote-card{min-width:84%;max-width:84%}}
 @media(prefers-reduced-motion:reduce){.marquee-track{animation:none}}
+/* Launch draft: limited changes to the offer and social proof. */
+.preview-bar{background:#edb443;color:#293630;border-bottom:2px solid #d69632}
+.preview-bar strong,.preview-bar .banner-detail{color:#293630}
+.offer-note{background:linear-gradient(135deg,#fff9e9,#fff1cc);border-color:#e8d5a5;border-top-color:#db9d38;box-shadow:0 10px 30px #aa762510}
+.offer-note .promo-tag{background:#f0bd58;color:#374b35}
+.offer-note h3{color:#37654c}
+.countdown>div{width:86px;background:#fffdf6;border:1px solid #edd7a7}
+.countdown b{color:#aa5727;font-size:34px}
+.launch-price{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;margin-top:15px;font-size:13px}
+.launch-price del{color:#81867d;font-size:17px;text-decoration-thickness:1px}
+.launch-price>span{color:#37654c;font-weight:700}
+.offer-card.featured .launch-price>span{background:#e1ead9;padding:4px 8px;border-radius:5px}
+.upgrade{padding:12px;background:#e3ecdD;border-radius:10px;font-weight:600}
+.empty-stars{color:#b6bdb5}
+@media(min-width:761px){.quote-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.quote-card:nth-child(4){grid-column:1/2}}
+@media(max-width:760px){.countdown b{font-size:30px}.countdown>div{width:78px}.launch-price{gap:7px 10px}.quote-card{flex:0 0 84%}}
